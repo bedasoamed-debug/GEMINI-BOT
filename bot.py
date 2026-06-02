@@ -1,6 +1,6 @@
 import telebot
 from telebot import types
-import requests
+import google.generativeai as genai
 import threading
 import os
 from flask import Flask
@@ -18,8 +18,10 @@ def run_web():
 TOKEN = "8902169965:AAF2lXAWtCkZ7UuewPD5XPIGNKxvLqjRDD4"
 bot = telebot.TeleBot(TOKEN)
 
-# Key kee isa haaraa bifa header tiin erguuf qophaa'eera
-GEMINI_API_KEY = "AQ.Ab8RN6KpCodfeLuQL08-8seUUaxtCLv49QB4lsBDoTbc6ih9-A"
+# Key kee isa suuraa 1000043907.jpg irraa argatte qulqulleessitee galchi
+GEMINI_API_KEY = "AQ.Ab8RN6JwTpxhgNm2llwy_Dc8RHRuz..." # As irratti key kee isa guutuu galchi
+genai.configure(api_key=GEMINI_API_KEY)
+
 LOGO_URL = "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80" 
 
 @bot.message_handler(commands=['start'])
@@ -27,7 +29,7 @@ def send_welcome(message):
     welcome_text = (
         "🤖 **Baga Nagaan Dhufte! Kun GEMINI BOT dha.**\n\n"
         "Gemini Bot AI ammayyaa dandeettii dacha qabu yoo ta'u, "
-        "kallattiin Google Gemini REST API tekinolojiitiin siif hojjeta!\n\n"
+        "kallattiin Google Gemini SDK tekinolojiitiin siif hojjeta!\n\n"
         "👇 Filannoowwan armaan gadii cuqaasii fayyadami, ykn gaaffii kee barreessi!"
     )
     
@@ -58,26 +60,13 @@ def handle_message(message):
 
     waiting_msg = bot.reply_to(message, "🧠 *Gemini Bot AI deebii kee xiinxalaa jira...*", parse_mode="Markdown")
     
-    # URL irraa key parameter sana hanqisnee bifa qulqulluun waamna
-    api_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
-
-    # Header irratti bifa Authorization Bearer fi X-goog-api-key lamaaniinu madaalla
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {GEMINI_API_KEY}",
-        "X-goog-api-key": GEMINI_API_KEY
-    }
-    payload = {"contents": [{"parts": [{"text": user_query}]}]}
-    
     try:
-        response = requests.post(api_url, headers=headers, json=payload, timeout=25)
-        if response.status_code == 200:
-            res_data = response.json()
-            ai_response = res_data['candidates'][0]['content']['parts'][0]['text']
-        else:
-            ai_response = f"⚠️ Server Error (Status: {response.status_code}): Mee koodii header deebisanii xiinxaluu gaafata."
+        # SDK haaraa kanaan modelii waamna
+        model = genai.GenerativeModel('gemini-1.5-flash')
+        response = model.generate_content(user_query)
+        ai_response = response.text
     except Exception as e:
-        ai_response = f"❌ Hanqinni network uumameera: {str(e)}"
+        ai_response = f"❌ Dogoggora SDK uumameera: {str(e)}\nMee koodii kee irratti pip install google-generativeai mirkaneessi."
 
     try:
         bot.edit_message_text(chat_id=message.chat.id, message_id=waiting_msg.message_id, text=ai_response)
