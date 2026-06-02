@@ -19,7 +19,7 @@ def run_web():
 TOKEN = "8902169965:AAF2lXAWtCkZ7UuewPD5XPIGNKxvLqjRDD4"
 bot = telebot.TeleBot(TOKEN)
 
-GEMINI_API_KEY = "AQ.Ab8RN6LRb-YbH3Sj3SKkNYdrYu6zXdIhT_G9aI3M6C2RRZRvug"
+GEMINI_API_KEY = "AQ.Ab8RN6JkqzRX9amtoVaZKkpDb8u5FTBOM9yJ6by5oMioDfQIfA"
 LOGO_URL = "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80" 
 
 @bot.message_handler(commands=['start'])
