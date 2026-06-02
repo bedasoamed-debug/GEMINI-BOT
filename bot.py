@@ -2,6 +2,7 @@ import telebot
 from telebot import types
 import requests
 import threading
+import os
 from flask import Flask
 
 app = Flask('')
@@ -11,13 +12,14 @@ def home():
     return "Bot is alive and running!"
 
 def run_web():
-    app.run(host='0.0.0.0', port=8080)
+    # Render irratti portii sirrii akka argatuuf os.environ fayyadamna
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host='0.0.0.0', port=port)
 
 TOKEN = "8902169965:AAF2lXAWtCkZ7UuewPD5XPIGNKxvLqjRDD4"
 bot = telebot.TeleBot(TOKEN)
 
 GEMINI_API_KEY = "AQ.Ab8RN6LRb-YbH3Sj3SKkNYdrYu6zXdIhT_G9aI3M6C2RRZRvug"
-
 LOGO_URL = "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80" 
 
 @bot.message_handler(commands=['start'])
@@ -56,7 +58,8 @@ def handle_message(message):
 
     waiting_msg = bot.reply_to(message, "🧠 *Gemini Bot AI deebii kee xiinxalaa jira...*", parse_mode="Markdown")
     
-    api_url = api_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key={GEMINI_API_KEY}"
+    # Modelii sirrii `gemini-1.5-flash` irratti sirreessineera
+    api_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
 
     headers = {"Content-Type": "application/json"}
     payload = {"contents": [{"parts": [{"text": user_query}]}]}
@@ -67,9 +70,9 @@ def handle_message(message):
             res_data = response.json()
             ai_response = res_data['candidates'][0]['content']['parts'][0]['text']
         else:
-            ai_response = "⚠️ Server Error: Mee sarara kee irra deebii qulqulleessi."
+            ai_response = f"⚠️ Server Error (Status: {response.status_code}): Mee sarara kee irra deebii qulqulleessi."
     except Exception as e:
-        ai_response = "❌ Hanqinni network uumameera. Irra deebii yaali."
+        ai_response = f"❌ Hanqinni network uumameera: {str(e)}"
 
     try:
         bot.edit_message_text(chat_id=message.chat.id, message_id=waiting_msg.message_id, text=ai_response)
