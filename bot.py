@@ -18,8 +18,8 @@ def run_web():
 TOKEN = "8902169965:AAF2lXAWtCkZ7UuewPD5XPIGNKxvLqjRDD4"
 bot = telebot.TeleBot(TOKEN)
 
-# API Key kee isa haaraa as keessatti qulqulleessinee madaalleera
-GEMINI_API_KEY = "AQ.Ab8RN6JkqzRX9amtoVaZKkpDb8u5FTBOM9yJ6by5oMioDfQIfA"
+# Key kee isa haaraa bifa header tiin erguuf qophaa'eera
+GEMINI_API_KEY = "AQ.Ab8RN6KpCodfeLuQL08-8seUUaxtCLv49QB4lsBDoTbc6ih9-A"
 LOGO_URL = "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80" 
 
 @bot.message_handler(commands=['start'])
@@ -56,13 +56,17 @@ def handle_message(message):
         bot.reply_to(message, f"✨ Hojii **{user_query}** jedhu filattanii jirtu. Dandeettiin kun dabalataan hojjetamaa jira!", parse_mode="Markdown")
         return
 
-    # Ergaa turaa jiru eegalchiisuu
     waiting_msg = bot.reply_to(message, "🧠 *Gemini Bot AI deebii kee xiinxalaa jira...*", parse_mode="Markdown")
     
-    # Modelii sirrii fi seera qabeessa `gemini-1.5-flash` fayyadamna
-    api_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
+    # URL irraa key parameter sana hanqisnee bifa qulqulluun waamna
+    api_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
 
-    headers = {"Content-Type": "application/json"}
+    # Header irratti bifa Authorization Bearer fi X-goog-api-key lamaaniinu madaalla
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {GEMINI_API_KEY}",
+        "X-goog-api-key": GEMINI_API_KEY
+    }
     payload = {"contents": [{"parts": [{"text": user_query}]}]}
     
     try:
@@ -71,12 +75,10 @@ def handle_message(message):
             res_data = response.json()
             ai_response = res_data['candidates'][0]['content']['parts'][0]['text']
         else:
-            # Dogoggora jiru ifatti akka arginuuf status code itti daballeera
-            ai_response = f"⚠️ Server Error (Status: {response.status_code}): Mee API Key kee eeyyama qabaachuu mirkaneessi."
+            ai_response = f"⚠️ Server Error (Status: {response.status_code}): Mee koodii header deebisanii xiinxaluu gaafata."
     except Exception as e:
         ai_response = f"❌ Hanqinni network uumameera: {str(e)}"
 
-    # Ergaa 'Xiinxalaa jira' jedhu sana deebii AI kanaan bakka buusuu
     try:
         bot.edit_message_text(chat_id=message.chat.id, message_id=waiting_msg.message_id, text=ai_response)
     except Exception as e:
