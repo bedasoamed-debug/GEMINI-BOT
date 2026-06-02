@@ -15,11 +15,12 @@ def run_web():
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
 
+# Token kee isa sirrii as keessatti galchineerra
 TOKEN = "8902169965:AAF2lXAWtCkZ7UuewPD5XPIGNKxvLqjRDD4"
 bot = telebot.TeleBot(TOKEN)
 
-# Key kee isa suuraa 1000043907.jpg irraa argatte qulqulleessitee galchi
-GEMINI_API_KEY = "AQ.Ab8RN6JwTpxhgNm2llwy_Dc8RHRuz..." # As irratti key kee isa guutuu galchi
+# API Key kee isa suuraa dhiyoo irratti uumte guutuu as keessatti bakka buasi
+GEMINI_API_KEY = "AQ.Ab8RN6JwTpxhgNm2llwy_Dc8RHRuz..." 
 genai.configure(api_key=GEMINI_API_KEY)
 
 LOGO_URL = "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80" 
@@ -61,7 +62,7 @@ def handle_message(message):
     waiting_msg = bot.reply_to(message, "🧠 *Gemini Bot AI deebii kee xiinxalaa jira...*", parse_mode="Markdown")
     
     try:
-        # SDK haaraa kanaan modelii waamna
+        # SDK haaraa kanaan bifa qulqulluun modelii waamna
         model = genai.GenerativeModel('gemini-1.5-flash')
         response = model.generate_content(user_query)
         ai_response = response.text
